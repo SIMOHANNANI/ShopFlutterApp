@@ -12,52 +12,61 @@ class ProductItem extends StatelessWidget {
     // When we wanna just a subpart of the builder to be interested by the
     // changes we've to use the consumer widget;
     return Consumer<Product>(
-      builder: (ctx, product, child) =>
-          GridTile(
-            child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushNamed(ProductDetailScreen.routeName,
-                      arguments: product.id);
-                  // forward the id of the product the the product detail screen ,That's allow us to obtain the
-                  // the other property of the product ...
+      builder: (ctx, product, child) => GridTile(
+        child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pushNamed(ProductDetailScreen.routeName,
+                  arguments: product.id);
+              // forward the id of the product the the product detail screen ,That's allow us to obtain the
+              // the other property of the product ...
+            },
+            child: Image.network(
+              product.imageUrl,
+              fit: BoxFit.cover,
+            )),
+        footer: ClipRRect(
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(10.0),
+              bottomRight: Radius.circular(10.0)),
+          child: GridTileBar(
+              leading: IconButton(
+                icon: Icon(product.isFavorite
+                    ? Icons.favorite
+                    : Icons.favorite_border),
+                onPressed: () {
+                  product.toggleProductFavorite();
                 },
-                child: Image.network(
-                  product.imageUrl,
-                  fit: BoxFit.cover,
-                )),
-            footer: ClipRRect(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(10.0),
-                  bottomRight: Radius.circular(10.0)),
-              child: GridTileBar(
-                  leading: IconButton(
-                    icon: Icon(product.isFavorite
-                        ? Icons.favorite
-                        : Icons.favorite_border),
-                    onPressed: () {
-                      product.toggleProductFavorite();
-                    },
-                    color: Theme
-                        .of(context)
-                        .accentColor,
-                  ),
-                  backgroundColor: Colors.black38,
-                  title: Text(
-                    product.title,
-                    textAlign: TextAlign.center,
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.shopping_cart),
-                    onPressed: () {
-                      cart.addItem(product.id, product.price, product.title);
-
-                    },
-                    color: Theme
-                        .of(context)
-                        .accentColor,
-                  )),
-            ),
-          ),
+                color: Theme.of(context).accentColor,
+              ),
+              backgroundColor: Colors.black38,
+              title: Text(
+                product.title,
+                textAlign: TextAlign.center,
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.shopping_cart),
+                onPressed: () {
+                  cart.addItem(product.id, product.price, product.title);
+                  Scaffold.of(context).hideCurrentSnackBar();
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                      'Adding item to card ...',
+                      style: TextStyle(
+                        wordSpacing: 10,
+                        letterSpacing: 5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    duration: Duration(seconds: 3),
+                    action: SnackBarAction(label: 'Undo',onPressed: (){
+                      cart.removeSingleCart(product.id);
+                    },),
+                  ));
+                },
+                color: Theme.of(context).accentColor,
+              )),
+        ),
+      ),
     );
   }
 }

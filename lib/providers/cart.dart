@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class CartItem {
   final String id;
@@ -19,10 +20,12 @@ class Cart with ChangeNotifier {
   Map<String, CartItem> get items {
     return {..._items};
   }
+
   int get itemCount {
     return _items.length;
   }
-  double get totalAmount{
+
+  double get totalAmount {
     double total = 0.0;
     _items.forEach((key, value) {
       total += value.price * value.quantity;
@@ -54,12 +57,33 @@ class Cart with ChangeNotifier {
     }
     notifyListeners();
   }
-  void removeCart(String productId){
+
+  void removeCart(String productId) {
     _items.remove(productId);
     notifyListeners();
   }
-  void clearCart(){
+
+  void clearCart() {
     _items = {};
+    notifyListeners();
+  }
+
+  void removeSingleCart(String productId) {
+    if (!_items.containsKey(productId)) {
+      return;
+    }
+    if (_items[productId].quantity > 1) {
+      _items.update(
+          productId,
+          (item) => CartItem(
+              id: item.id,
+              title: item.title,
+              price: item.price,
+              quantity: item.quantity - 1));
+    }
+    else{
+      _items.remove(productId);
+    }
     notifyListeners();
   }
 }
