@@ -57,7 +57,7 @@ class ProductItem extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    duration: Duration(seconds: 3),
+                    duration: Duration(seconds: 1),
                     action: SnackBarAction(label: 'Undo',onPressed: (){
                       cart.removeSingleCart(product.id);
                     },),

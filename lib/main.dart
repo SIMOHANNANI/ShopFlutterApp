@@ -8,6 +8,9 @@ import './providers/cart.dart';
 import './screens/cart_screen.dart';
 import './providers/orders.dart';
 import './screens/orders_screen.dart';
+import './screens/user_product_screen.dart';
+import 'screens/edit_product_screen.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -16,12 +19,17 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (ctx)=> ProductsProvider(),
+          create: (ctx) => ProductsProvider(),
         ),
         ChangeNotifierProvider(
           create: (ctx) => Cart(),
         ),
-        ChangeNotifierProvider(create: (ctx)=>Orders())
+        ChangeNotifierProvider(
+          create: (ctx) => Orders(),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => UserProductScreen(),
+        ),
       ],
 
       // but if we using an existing instantiation if a class we can use
@@ -48,8 +56,11 @@ class MyApp extends StatelessWidget {
         home: ProductsOverviewScreen(),
         routes: {
           ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
-          CartScreen.routeName:(context)=> CartScreen(),
-          OrdersScreen.routeName:(context)=> OrdersScreen(),
+          CartScreen.routeName: (context) => CartScreen(),
+          OrdersScreen.routeName: (context) => OrdersScreen(),
+          UserProductScreen.routeName: (context) => UserProductScreen(),
+          EditProductScreen.routeName:(context) => EditProductScreen(),
+
         },
       ),
     );
