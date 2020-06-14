@@ -27,9 +27,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (ctx) => Orders(),
         ),
-        ChangeNotifierProvider(
-          create: (ctx) => UserProductScreen(),
-        ),
       ],
 
       // but if we using an existing instantiation if a class we can use

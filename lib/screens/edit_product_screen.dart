@@ -106,7 +106,7 @@ class _EditProductScreen extends State {
                 onSaved: (value) {
                   _editedWillSavedProduct = Product(
                     title: _editedWillSavedProduct.title,
-                    price: !value.isEmpty ? double.parse(value):0,
+                    price: value.isNotEmpty ? double.parse(value):0,
                     description: _editedWillSavedProduct.description,
                     imageUrl: _editedWillSavedProduct.imageUrl,
                     id: null,

@@ -1,12 +1,11 @@
 import 'package:ShopApp/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart';
 import '../providers/products_provider.dart';
 import '../widgets/user_products_item.dart';
 import './edit_product_screen.dart';
 
-class UserProductScreen extends StatelessWidget with ChangeNotifier {
+class UserProductScreen extends StatelessWidget {
   static const routeName = '/user-product';
   @override
   Widget build(BuildContext context) {
