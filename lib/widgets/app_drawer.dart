@@ -38,7 +38,7 @@ class AppDrawer extends StatelessWidget {
           Divider(),
           ListTile(
             leading: Icon(
-              Icons.done_all,
+              Icons.all_inclusive,
             ),
             title: Text('User products'),
             onTap: () {
