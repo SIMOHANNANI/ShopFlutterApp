@@ -24,6 +24,7 @@ class _EditProductScreen extends State {
     imageUrl: '',
   );
   bool _isInit = true;
+  bool _isLoading = false;
   var _initProductValues = {
     'title': '',
     'description': '',
@@ -41,14 +42,11 @@ class _EditProductScreen extends State {
   // ignore: must_call_super
   void didChangeDependencies() {
     if (_isInit) {
-      final productId = ModalRoute
-          .of(context)
-          .settings
-          .arguments as String;
+      final productId = ModalRoute.of(context).settings.arguments as String;
       if (productId != null) {
         final _editTargetedProduct =
-        Provider.of<ProductsProvider>(context, listen: false)
-            .findById(productId);
+            Provider.of<ProductsProvider>(context, listen: false)
+                .findById(productId);
         print(_editTargetedProduct.title);
         _initProductValues = {
           'title': _editTargetedProduct.title,
@@ -80,17 +78,29 @@ class _EditProductScreen extends State {
   }
 
   void _saveForm() {
+    setState(() {
+      _isLoading = true;
+    });
     final isValid = _formLinker.currentState.validate();
     if (!isValid) return;
     _formLinker.currentState.save();
     if (_editedWillSavedProduct.id != null) {
       Provider.of<ProductsProvider>(context, listen: false)
           .updateProduct(_editedWillSavedProduct.id, _editedWillSavedProduct);
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.of(context).pop();
     } else {
       Provider.of<ProductsProvider>(context, listen: false)
-          .addProduct(_editedWillSavedProduct);
+          .addProduct(_editedWillSavedProduct)
+          .then((value) {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pop();
+      });
     }
-    Navigator.of(context).pop();
   }
 
   @override
@@ -107,7 +117,7 @@ class _EditProductScreen extends State {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
-        child: Form(
+        child: _isLoading ? Center(child: CircularProgressIndicator(),):Form(
           key: _formLinker,
           child: ListView(
             children: <Widget>[
@@ -194,23 +204,21 @@ class _EditProductScreen extends State {
                     decoration: BoxDecoration(
                       border: Border.all(
                         width: 2.0,
-                        color: Theme
-                            .of(context)
-                            .primaryColor,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                     child: _imageUrlController.text.isEmpty
                         ? Center(
-                        child: Text(
-                          'Enter a URL',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.0,
-                          ),
-                        ))
+                            child: Text(
+                            'Enter a URL',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
+                            ),
+                          ))
                         : FittedBox(
-                      child: Image.network(_imageUrlController.text),
-                    ),
+                            child: Image.network(_imageUrlController.text),
+                          ),
                   ),
                   Expanded(
                     child: TextFormField(
