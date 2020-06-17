@@ -4,40 +4,42 @@ import 'dart:convert';
 import 'product.dart';
 
 class ProductsProvider with ChangeNotifier {
-  List<Product> _products = [
-    Product(
-      id: 'p1',
-      title: 'Red Shirt',
-      description: 'A red shirt - it is pretty red!',
-      price: 29.99,
-      imageUrl:
-          'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-    ),
-    Product(
-      id: 'p2',
-      title: 'Trousers',
-      description: 'A nice pair of trousers.',
-      price: 59.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
-    ),
-    Product(
-      id: 'p3',
-      title: 'Yellow Scarf',
-      description: 'Warm and cozy - exactly what you need for the winter.',
-      price: 19.99,
-      imageUrl:
-          'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
-    ),
-    Product(
-      id: 'p4',
-      title: 'A Pan',
-      description: 'Prepare any meal you want.',
-      price: 49.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
-  ];
+  List<Product> _products = [];
+
+//  List<Product> _products = [
+//    Product(
+//      id: 'p1',
+//      title: 'Red Shirt',
+//      description: 'A red shirt - it is pretty red!',
+//      price: 29.99,
+//      imageUrl:
+//          'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+//    ),
+//    Product(
+//      id: 'p2',
+//      title: 'Trousers',
+//      description: 'A nice pair of trousers.',
+//      price: 59.99,
+//      imageUrl:
+//          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
+//    ),
+//    Product(
+//      id: 'p3',
+//      title: 'Yellow Scarf',
+//      description: 'Warm and cozy - exactly what you need for the winter.',
+//      price: 19.99,
+//      imageUrl:
+//          'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
+//    ),
+//    Product(
+//      id: 'p4',
+//      title: 'A Pan',
+//      description: 'Prepare any meal you want.',
+//      price: 49.99,
+//      imageUrl:
+//          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
+//    ),
+//  ];
 
   //  bool _showFavoritesOnly = false;
 
@@ -49,18 +51,49 @@ class ProductsProvider with ChangeNotifier {
     return [..._products]; // Return a copy of the product list
   }
 
-  Future<void> addProduct(Product product) {
+  Future<void> dataBaseOperation() async {
+    // Fetching the product present in the database:
+    const url = 'https://shopapp-1621f.firebaseio.com/products.json';
+    try {
+      final response = await http.get(url);
+      final gatheredData = json.decode(response.body) as Map<String, dynamic>;
+      final List<Product> loaderProducts = [];
+      gatheredData.forEach((key, value) {
+        // loop through the map of products ,
+        // the key is the product id
+        // and actually the value is the product data .
+        loaderProducts.add(Product(
+          id: key,
+          title: value['title'],
+          description: value['description'],
+          price: value['price'],
+          imageUrl: value['imageUrl'],
+          isFavorite: value['isFavorite'],
+        ));
+      });
+      _products = loaderProducts;
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<void> addProduct(Product product) async {
     final url = 'https://shopapp-1621f.firebaseio.com/products.json';
-    return http.post(url,
+    try {
+      final response = await http.post(
+        url,
         body: json.encode({
           'title': product.title,
           'description': product.description,
           'imageUrl': product.imageUrl,
           'price': product.price,
           'isFavorite': product.isFavorite,
-        })).then((value){
+        }),
+      );
+
       final newProduct = Product(
-        id: json.decode(value.body)['name'],
+        id: json.decode(response.body)['name'],
         title: product.title,
         description: product.description,
         price: product.price,
@@ -68,9 +101,11 @@ class ProductsProvider with ChangeNotifier {
       );
       _products.add(newProduct);
       // Add at the beginning of the list
-//    _products.insert(0, newProduct);
+      //    _products.insert(0, newProduct);
       notifyListeners();
-    });
+    } catch (error) {
+      throw error;
+    }
   }
 
   Product findById(String id) {
@@ -81,12 +116,16 @@ class ProductsProvider with ChangeNotifier {
     return _products.where((element) => element.isFavorite).toList();
   }
 
-  void updateProduct(String id, Product newProduct) {
+  Future<void> updateProduct(String id, Product newProduct){
     final _productUpdateIndex =
         _products.indexWhere((element) => element.id == id);
+    print("hello");
     if (_productUpdateIndex >= 0) {
       _products[_productUpdateIndex] = newProduct;
       notifyListeners();
+    }
+    else{
+      print('...');
     }
   }
 

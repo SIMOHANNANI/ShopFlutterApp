@@ -6,6 +6,7 @@ import '../widgets/badge.dart';
 import '../providers/cart.dart';
 import './cart_screen.dart';
 import '../widgets/app_drawer.dart';
+import '../providers/products_provider.dart';
 
 enum FilterLabel {
   Favorites,
@@ -19,6 +20,30 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showFavoriteOnly = false;
+  bool _initStart = true;
+  bool _isLoading = false;
+
+//  @override
+//  void initState() {
+//    Future.delayed(Duration.zero).then((value){
+//    Provider.of<ProductsProvider>(context,listen: false).dataBaseOperation();
+//    });
+//    super.initState();
+//  }
+  // To fetch the data from the firebase frm here we can also :
+  @override
+  void didChangeDependencies() async {
+    if (_initStart) {
+      _isLoading = true;
+      Provider.of<ProductsProvider>(context).dataBaseOperation().then((value) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _initStart = false;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +87,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
               icon: Icon(
                 Icons.shopping_cart,
               ),
-              onPressed: (){
+              onPressed: () {
                 Navigator.of(context).pushNamed(CartScreen.routeName);
               },
             ),
@@ -70,7 +95,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: ProductGrid(_showFavoriteOnly),
+      body: _isLoading?Center(child: CircularProgressIndicator(),):ProductGrid(_showFavoriteOnly),
     );
   }
 }
