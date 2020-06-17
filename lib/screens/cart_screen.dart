@@ -44,6 +44,7 @@ class CartScreen extends StatelessWidget {
                     child: Text('Purchase now'),
                     onPressed: () {
                       // Adding orders :
+                      print(cart.itemCount);
                       Provider.of<Orders>(context, listen: false).addOrder(
                         cart.items.values.toList(),
                         cart.totalAmount,

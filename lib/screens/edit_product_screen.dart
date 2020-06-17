@@ -10,13 +10,13 @@ class EditProductScreen extends StatefulWidget {
   _EditProductScreen createState() => _EditProductScreen();
 }
 
-class _EditProductScreen extends State {
+class _EditProductScreen extends State<EditProductScreen> {
   final _priceFocusNode = FocusNode();
   final _descriptionNode = FocusNode();
   final _imageUrlController = TextEditingController();
   final _imageUrlFocusNode = FocusNode();
   final _formLinker = GlobalKey<FormState>();
-  var _editedWillSavedProduct = Product(
+  Product _editedWillSavedProduct = Product(
     id: null,
     title: '',
     price: 0,
@@ -24,6 +24,7 @@ class _EditProductScreen extends State {
     imageUrl: '',
   );
   var _initProductValues = {
+    'id': null,
     'title': '',
     'description': '',
     'price': 0,
@@ -41,14 +42,14 @@ class _EditProductScreen extends State {
   @override
   void didChangeDependencies() {
     if (_isInit) {
-      final productId = ModalRoute.of(context).settings.arguments as String;;
+      var productId = ModalRoute.of(context).settings.arguments as String;
+      ;
       if (productId != null) {
-        final _editedWillSavedProduct =
-        Provider.of<ProductsProvider>(context, listen: false).findById(productId);
-        print('from did changeddepe');
-        print(_editedWillSavedProduct.id);
+        var _editedWillSavedProduct =
+            Provider.of<ProductsProvider>(context, listen: false)
+                .findById(productId);
         _initProductValues = {
-
+          'id': _editedWillSavedProduct.id,
           'title': _editedWillSavedProduct.title,
           'description': _editedWillSavedProduct.description,
           'price': _editedWillSavedProduct.price.toString(),
@@ -57,6 +58,7 @@ class _EditProductScreen extends State {
         };
         _imageUrlController.text = _editedWillSavedProduct.imageUrl;
       }
+//      print('we don\'t have a product id');
     }
     _isInit = false;
     super.didChangeDependencies();
@@ -85,19 +87,12 @@ class _EditProductScreen extends State {
     setState(() {
       _isLoading = true;
     });
-    print("from save function");
-    print(_editedWillSavedProduct.id);
-    //_____________________________________________________________________________ cannot change the global variable !
-    if (_editedWillSavedProduct.id != null) {
-      print("you did it");
-      Provider.of<ProductsProvider>(context, listen: false)
-          .updateProduct(_editedWillSavedProduct.id, _editedWillSavedProduct);
-      setState(() {
-        _isLoading = false;
-      });
+
+    if (_initProductValues['id'] != null) {
+      await Provider.of<ProductsProvider>(context, listen: false)
+          .updateProduct(_initProductValues['id'], _editedWillSavedProduct);
       Navigator.of(context).pop();
     } else {
-      print("hello from problem");
       try {
         await Provider.of<ProductsProvider>(context, listen: false)
             .addProduct(_editedWillSavedProduct);
@@ -122,13 +117,11 @@ class _EditProductScreen extends State {
             ],
           ),
         );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
       }
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override

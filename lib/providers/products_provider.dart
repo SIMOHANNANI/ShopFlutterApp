@@ -116,21 +116,45 @@ class ProductsProvider with ChangeNotifier {
     return _products.where((element) => element.isFavorite).toList();
   }
 
-  Future<void> updateProduct(String id, Product newProduct){
+  Future<void> updateProduct(String id, Product newProduct) async {
     final _productUpdateIndex =
-        _products.indexWhere((element) => element.id == id);
-    print("hello");
+    _products.indexWhere((element) => element.id == id);
     if (_productUpdateIndex >= 0) {
+      final url = 'https://shopapp-1621f.firebaseio.com/products/$id.json';
+      try {
+        await http.patch(url, body: jsonEncode({
+          'title': newProduct.title,
+          'description': newProduct.description,
+          'price': newProduct.price,
+          'imageUrl': newProduct.imageUrl,
+        }));
+      }catch(error){
+        throw error;
+      }
+
+      // sending a post request :
+
       _products[_productUpdateIndex] = newProduct;
       notifyListeners();
     }
-    else{
+    else {
       print('...');
     }
   }
 
-  void deleteProduct(String id) {
+  void deleteProduct(String id) async{
+    final indexWillDeleteProduct = _products.indexWhere((element) => id == element.id);
+    var willDeleteProduct = _products[indexWillDeleteProduct];
+    _products.removeAt(indexWillDeleteProduct);
+    final url = 'https://shopapp-1621f.firebaseio.com/products/$id.json';
+    await http.delete(url).then((_){
+      willDeleteProduct = null;
+    }).catchError((_){
+      _products.insert(indexWillDeleteProduct, willDeleteProduct);
+
+    });
     _products.removeWhere((element) => element.id == id);
+
     notifyListeners();
   }
 }
