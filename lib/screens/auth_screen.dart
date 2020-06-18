@@ -1,26 +1,31 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../models/http_exception_handler.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth.dart';
+//import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 enum AuthMode { SignUp, SignIn }
 
 class AuthScreen extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: <Widget>[
           Container(
+
+//            margin: EdgeInsets.symmetric(vertical: 20.0,horizontal: 10.0),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(237, 83, 0, 0),
-                  Color.fromRGBO(237, 83, 0, 0.9),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: [0, 2],
+              image: DecorationImage(
+                image: AssetImage(
+                  "assets/img/women.png",
+                ),
+                fit: BoxFit.scaleDown,
               ),
             ),
           ),
@@ -93,7 +98,23 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
-  void _submitFrom() {
+  void _showErrorMessage(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Error occurred'),
+        content: Text(errorMessage),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('close'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submitFrom() async {
     if (!_formKey.currentState.validate()) {
       // The field filled up are not valide
       return;
@@ -102,14 +123,41 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.SignUp) {
-      // A new user signing up
-      print("A new user signing up");
-
-    } else {
-      // An existing user trying to sign in
-      print("An existing user trying to signing in");
+    try {
+      if (_authMode == AuthMode.SignUp) {
+        // A new user signing up
+        //  print("A new user signing up");
+        await Provider.of<Auth>(context, listen: false).signUp(
+          _authCred['email'],
+          _authCred['password'],
+        );
+      } else {
+        // An existing user trying to sign in
+        print("An existing user trying to signing in");
+        await Provider.of<Auth>(context, listen: false).signIn(
+          _authCred['email'],
+          _authCred['password'],
+        );
+      }
+    } on HttpExceptionHandler catch (e) {
+      var errorMessage = 'wrong credentials';
+      if (e.toString().contains('EMAIL_EXISTS')) {
+        errorMessage = 'This email was already token';
+      } else if (e.toString().contains('INVALID_EMAIL')) {
+        errorMessage = 'Invalid email ! Please try another one';
+      } else if (e.toString().contains('WEAK_PASSWORD')) {
+        errorMessage = 'Weak password';
+      } else if (e.toString().contains('EMAIL_NOT_FOUND')) {
+        errorMessage = 'You\'re not registred yet, Please sign up';
+      } else if (e.toString().contains('INVALID_PASSWORD')) {
+        errorMessage = 'incorrect password';
+      }
+      _showErrorMessage(errorMessage);
+    } catch (e) {
+      var errorMessage = 'Something went wrong, Please try later';
+      _showErrorMessage(errorMessage);
     }
+
     setState(() {
       _isLoading = false;
     });
@@ -132,16 +180,17 @@ class _AuthCardState extends State<AuthCard> {
     final deviceSize = MediaQuery.of(context).size;
     return Card(
       elevation: 20.0,
-      shape:RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0)),
+      color: Color.fromRGBO(252, 252, 252, 0.95),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
       child: SingleChildScrollView(
         child: Container(
+          padding:EdgeInsets.symmetric(vertical: 30.0,horizontal: 40.0),
           height: 320.0,
           // To change
-          constraints: BoxConstraints(minHeight: 320.0),
+          constraints: BoxConstraints(minHeight: 350.0),
           // To change
           width: deviceSize.width * 0.75,
-          padding: EdgeInsets.all(16.0),
+//          padding: EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -215,9 +264,9 @@ class _AuthCardState extends State<AuthCard> {
                         elevation: 5.0,
                         splashColor: Theme.of(context).primaryColor,
                       ),
-                FlatButton(
+                _authMode == AuthMode.SignIn ? FlatButton(
                   child: Text(
-                    '${_authMode == AuthMode.SignIn ? 'SIGN-UP' : 'SIGN-UP'} INSTEAD',
+                    'A new user ?',
                     style:
                         TextStyle(fontWeight: FontWeight.w800, fontSize: 15.0),
                   ),
@@ -227,6 +276,19 @@ class _AuthCardState extends State<AuthCard> {
                   onPressed: _switchAuthMode,
                   padding:
                       EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
+                  textColor: Theme.of(context).primaryColor,
+                ):FlatButton(
+                  child: Text(
+                    'Already registred ?',
+                    style:
+                    TextStyle(fontWeight: FontWeight.w800, fontSize: 15.0),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  onPressed: _switchAuthMode,
+                  padding:
+                  EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
                   textColor: Theme.of(context).primaryColor,
                 ),
               ],
