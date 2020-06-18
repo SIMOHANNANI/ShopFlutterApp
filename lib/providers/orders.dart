@@ -63,7 +63,6 @@ class Orders with ChangeNotifier {
     final response = await http.post(url,
         body: json.encode({
           'amount': total,
-          'products': cartProducts,
           'dateTime': currentTime.toIso8601String(),
           'products': cartProducts
               .map((e) => {

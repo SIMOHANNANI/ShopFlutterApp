@@ -1,7 +1,7 @@
 import 'package:ShopApp/providers/orders.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import './screens/product_overview_screen.dart';
+//import './screens/product_overview_screen.dart';
 import './screens/product_detail_screen.dart';
 import './providers/products_provider.dart';
 import './providers/cart.dart';
@@ -10,7 +10,7 @@ import './providers/orders.dart';
 import './screens/orders_screen.dart';
 import './screens/user_product_screen.dart';
 import 'screens/edit_product_screen.dart';
-
+import 'screens/auth_screen.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -38,7 +38,6 @@ class MyApp extends StatelessWidget {
       // and we're providing our data on single list or grid items when flutter
       // then flutter then actually will recyle the widget we're attaching our
       // provider to ...
-
       // As we need more than one provider ,the provider package has been manged
       // that to use MultiProvider class .
 
@@ -50,7 +49,7 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Lato',
         ),
         debugShowCheckedModeBanner: false,
-        home: ProductsOverviewScreen(),
+        home: AuthScreen(),
         routes: {
           ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
           CartScreen.routeName: (context) => CartScreen(),
