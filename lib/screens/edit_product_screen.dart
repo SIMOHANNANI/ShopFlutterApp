@@ -140,8 +140,10 @@ class _EditProductScreen extends State<EditProductScreen> {
         padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
         child: _isLoading
             ? Center(
-                child: CircularProgressIndicator(),
-              )
+                child: SizedBox(
+                    width: 100.0,
+                    height: 100.0,
+                    child: CircularProgressIndicator()))
             : Form(
                 key: _formLinker,
                 child: ListView(

@@ -40,19 +40,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
-                  FlatButton(
-                    child: Text('Purchase now'),
-                    onPressed: () {
-                      // Adding orders :
-                      print(cart.itemCount);
-                      Provider.of<Orders>(context, listen: false).addOrder(
-                        cart.items.values.toList(),
-                        cart.totalAmount,
-                      );
-                      cart.clearCart();
-                    },
-                    textColor: Theme.of(context).primaryColor,
-                  ),
+                  PurchaseButton(cart: cart),
                 ],
               ),
             ),
@@ -74,6 +62,57 @@ class CartScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class PurchaseButton extends StatefulWidget {
+  const PurchaseButton({
+    Key key,
+    @required this.cart,
+  }) : super(key: key);
+
+  final Cart cart;
+
+  @override
+  _PurchaseButtonState createState() => _PurchaseButtonState();
+}
+
+class _PurchaseButtonState extends State<PurchaseButton> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      child: _isLoading
+          ? SizedBox(
+              width: 20.0,
+              height: 20.0,
+              child: CircularProgressIndicator(
+              strokeWidth: 2.0,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.deepOrange,
+                ),
+              ),
+            )
+          : Text('Purchase now'),
+      onPressed: (widget.cart.itemCount > 0 || _isLoading)
+          ? () async {
+              setState(() {
+                _isLoading = true;
+              });
+              // Adding orders :
+              await Provider.of<Orders>(context, listen: false).addOrder(
+                widget.cart.items.values.toList(),
+                widget.cart.totalAmount,
+              );
+              setState(() {
+                _isLoading = false;
+              });
+              widget.cart.clearCart();
+            }
+          : null,
+      textColor: Theme.of(context).primaryColor,
     );
   }
 }

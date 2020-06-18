@@ -95,7 +95,13 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: _isLoading?Center(child: CircularProgressIndicator(),):ProductGrid(_showFavoriteOnly),
+      body: _isLoading
+          ? Center(
+              child: SizedBox(
+                  width: 100.0,
+                  height: 100.0,
+                  child: CircularProgressIndicator()))
+          : ProductGrid(_showFavoriteOnly),
     );
   }
 }
