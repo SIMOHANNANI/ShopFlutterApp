@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:ShopApp/providers/cart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import './auth.dart';
+//import './auth.dart';
 
 //import 'package:flutter/gestures.dart';
 import './cart.dart';
@@ -24,22 +24,23 @@ class OrdersItem {
 class Orders with ChangeNotifier {
   List<OrdersItem> _orders = [];
   final String token;
-  Orders(this.token, this._orders);
+  final userId;
+  Orders(this.token,this.userId, this._orders);
 
   List<OrdersItem> get orders {
     return [..._orders];
   }
 
   Future<void> dataBaseOperation() async {
-    final url = 'https://shopapp-1621f.firebaseio.com/orders.json?auth=$token';
+    final url = 'https://shopapp-1621f.firebaseio.com/orders/$userId.json?auth=$token';
     final response = await http.get(
       url,
     );
     final List<OrdersItem> fetchedOrders = [];
-    final fetchedFrromDatabaseOrders =
+    final fetchedFromDatabaseOrders =
         jsonDecode(response.body) as Map<String, dynamic>;
-    if(fetchedFrromDatabaseOrders == null) return ;
-    fetchedFrromDatabaseOrders.forEach((key, value) {
+    if(fetchedFromDatabaseOrders == null) return ;
+    fetchedFromDatabaseOrders.forEach((key, value) {
       fetchedOrders.add(OrdersItem(
         id: key,
         amount: value['amount'],
@@ -59,7 +60,7 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    final url = 'https://shopapp-1621f.firebaseio.com/orders.json?auth=$token';
+    final url = 'https://shopapp-1621f.firebaseio.com/orders/$userId.json?auth=$token';
     final currentTime = DateTime.now();
     final response = await http.post(url,
         body: json.encode({

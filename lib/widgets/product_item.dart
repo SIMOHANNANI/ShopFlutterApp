@@ -13,7 +13,7 @@ class ProductItem extends StatelessWidget {
     final cart = Provider.of<Cart>(context, listen: false);
     // When we wanna just a subpart of the builder to be interested by the
     // changes we've to use the consumer widget;
-    final auth = Provider.of<Auth>(context, listen: false).token;
+    final auth = Provider.of<Auth>(context, listen: false);
     return Consumer<Product>(
       builder: (ctx, product, child) => GridTile(
         child: GestureDetector(
@@ -37,7 +37,7 @@ class ProductItem extends StatelessWidget {
                     ? Icons.favorite
                     : Icons.favorite_border),
                 onPressed: () {
-                  product.toggleProductFavorite(auth);
+                  product.toggleProductFavorite(auth.token,auth.userId);
                 },
                 color: Theme.of(context).accentColor,
               ),

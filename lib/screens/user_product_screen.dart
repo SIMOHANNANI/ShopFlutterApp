@@ -7,12 +7,15 @@ import './edit_product_screen.dart';
 
 class UserProductScreen extends StatelessWidget {
   static const routeName = '/user-product';
-  Future<void> _refreshIndicator(BuildContext context) async{
-    await Provider.of<ProductsProvider>(context,listen: false).dataBaseOperation();
+
+  Future<void> _refreshIndicator(BuildContext context) async {
+    await Provider.of<ProductsProvider>(context, listen: false)
+        .dataBaseOperation(true);
   }
+
   @override
   Widget build(BuildContext context) {
-    final products = Provider.of<ProductsProvider>(context);
+//    final products = Provider.of<ProductsProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('User products'),
@@ -26,22 +29,36 @@ class UserProductScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshIndicator(context),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: 15.0,
-            horizontal: 10.0,
-          ),
-          child: ListView.builder(
-            itemCount: products.products.length,
-            itemBuilder: (_, i) => UserProductItem(
-              id: products.products[i].id,
-              title: products.products[i].title,
-              imageUrl: products.products[i].imageUrl,
-            ),
-          ),
-        ),
+      body: FutureBuilder(
+
+        future: _refreshIndicator(context),
+        builder: (ctx, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(
+                    child: SizedBox(
+                        width: 100.0,
+                        height: 100.0,
+                        child: CircularProgressIndicator()),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () => _refreshIndicator(context),
+                    child: Consumer<ProductsProvider>(
+                      builder: (ctx, products, _) => Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 15.0,
+                          horizontal: 10.0,
+                        ),
+                        child: ListView.builder(
+                          itemCount: products.products.length,
+                          itemBuilder: (_, i) => UserProductItem(
+                            id: products.products[i].id,
+                            title: products.products[i].title,
+                            imageUrl: products.products[i].imageUrl,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
       ),
       drawer: AppDrawer(),
     );
