@@ -33,7 +33,6 @@ class Product with ChangeNotifier {
             isFavorite,
           ));
     } catch (error) {
-      print(error);
       isFavorite = favoriteStatus;
     }
   }

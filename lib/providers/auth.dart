@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/http_exception_handler.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth with ChangeNotifier {
   String _token;
@@ -28,8 +29,8 @@ class Auth with ChangeNotifier {
   }
 
   // --------------------------------------------------------------------------------
-  Future<void> _authenticate(
-      String email, String password, String urlSegment) async {
+  Future<void> _authenticate(String email, String password,
+      String urlSegment) async {
     final url =
         'https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=AIzaSyCzIU3tmBi0cop9WvRTuQ4KbbIGdVK96-Y';
     try {
@@ -58,6 +59,14 @@ class Auth with ChangeNotifier {
       );
       _autoLogOut();
       notifyListeners();
+      final prefs = await SharedPreferences.getInstance();
+      final currentUserData = json.encode({
+        'token': _token,
+        'userId': _userId,
+        'expiryDate': _expiryDate.toIso8601String(),
+      });
+        prefs.setString('currentUserData', currentUserData);
+
     } catch (error) {
       throw error;
     }
@@ -71,7 +80,32 @@ class Auth with ChangeNotifier {
     return _authenticate(email, password, 'signInWithPassword');
   }
 
-  void logOut() {
+  Future<bool> tryAutoSignIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    // If the token is not set yet:
+    if (!prefs.containsKey('currentUserData')) {
+      return false;
+    }
+    // If the token is already set
+    // Getting the data stored locally
+    final grapedDataFromDevice = json.decode(
+        prefs.getString('currentUserData')) as Map<String, Object>;
+    // Get the expiry date :
+    final expiryDate = DateTime.parse(grapedDataFromDevice['expiryDate']);
+    // CHeck whether if the expiry date is passed on not yet :
+    if (expiryDate.isBefore(DateTime.now())) {
+      // Token is not valid :
+      return false;
+    }
+    _token = grapedDataFromDevice['token'];
+    _userId = grapedDataFromDevice['userId'];
+    _expiryDate = expiryDate;
+    _autoLogOut();
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> logOut() async{
     _expiryDate = null;
     _userId = null;
     _token = null;
@@ -79,7 +113,13 @@ class Auth with ChangeNotifier {
       _authTimer.cancel();
       _authTimer = null;
     }
+
     notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    // purge all the data stored :
+    prefs.clear();
+    // purge a specific data with :
+    prefs.remove('currentUserData');
     print('Logging out ...');
   }
 
@@ -87,7 +127,9 @@ class Auth with ChangeNotifier {
     if (_authTimer != null) {
       _authTimer.cancel();
     }
-    final _timeToExpires = _expiryDate.difference(DateTime.now()).inSeconds;
+    final _timeToExpires = _expiryDate
+        .difference(DateTime.now())
+        .inSeconds;
     _authTimer = Timer(Duration(seconds: _timeToExpires), () => logOut());
   }
 //  Future<void> signUp(String email, String password) async {

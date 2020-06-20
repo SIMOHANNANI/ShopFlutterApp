@@ -57,7 +57,6 @@ class _EditProductScreen extends State<EditProductScreen> {
         };
         _imageUrlController.text = _editedWillSavedProduct.imageUrl;
       }
-//      print('we don\'t have a product id');
     }
     _isInit = false;
     super.didChangeDependencies();
@@ -223,7 +222,6 @@ class _EditProductScreen extends State<EditProductScreen> {
                           id: _editedWillSavedProduct.id,
                           isFavorite: _editedWillSavedProduct.isFavorite,
                         );
-//                        print(_editedWillSavedProduct.id);
                       },
                     ),
                     Row(

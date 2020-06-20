@@ -126,14 +126,12 @@ class _AuthCardState extends State<AuthCard> {
     try {
       if (_authMode == AuthMode.SignUp) {
         // A new user signing up
-        print("A new user signing up");
         await Provider.of<Auth>(context, listen: false).signUp(
           _authCred['email'],
           _authCred['password'],
         );
       } else {
         // An existing user trying to sign in
-        print("An existing user trying to signing in");
         await Provider.of<Auth>(context, listen: false).signIn(
           _authCred['email'],
           _authCred['password'],
@@ -154,12 +152,10 @@ class _AuthCardState extends State<AuthCard> {
       }
       _showErrorMessage(errorMessage);
     } catch (e) {
-      print(e);
+//      throw e;
       var errorMessage = 'Something went wrong, Please try later';
       _showErrorMessage(errorMessage);
     }
-    print("logged in ");
-
     setState(() {
       _isLoading = false;
     });

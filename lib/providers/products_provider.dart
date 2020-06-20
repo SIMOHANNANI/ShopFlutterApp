@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -57,15 +58,13 @@ class ProductsProvider with ChangeNotifier {
             imageUrl: value['imageUrl'],
             isFavorite:
                 favoriteProduct == null ? false : favoriteProduct[key] ?? false,
-//            isFavorite: value['isFavorite'],
           ));
-//          print(key);
         });
       }
       _products = loaderProducts;
       notifyListeners();
     } catch (error) {
-      print(error);
+      throw error;
     }
   }
 
@@ -131,8 +130,6 @@ class ProductsProvider with ChangeNotifier {
 
       _products[_productUpdateIndex] = newProduct;
       notifyListeners();
-    } else {
-      print('...');
     }
   }
 
