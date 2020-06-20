@@ -1,9 +1,8 @@
 import 'dart:convert';
-
 import 'package:ShopApp/providers/cart.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import './auth.dart';
 
 //import 'package:flutter/gestures.dart';
 import './cart.dart';
@@ -24,13 +23,15 @@ class OrdersItem {
 
 class Orders with ChangeNotifier {
   List<OrdersItem> _orders = [];
+  final String token;
+  Orders(this.token, this._orders);
 
   List<OrdersItem> get orders {
     return [..._orders];
   }
 
   Future<void> dataBaseOperation() async {
-    final url = 'https://shopapp-1621f.firebaseio.com/orders.json';
+    final url = 'https://shopapp-1621f.firebaseio.com/orders.json?auth=$token';
     final response = await http.get(
       url,
     );
@@ -58,7 +59,7 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    final url = 'https://shopapp-1621f.firebaseio.com/orders.json';
+    final url = 'https://shopapp-1621f.firebaseio.com/orders.json?auth=$token';
     final currentTime = DateTime.now();
     final response = await http.post(url,
         body: json.encode({

@@ -117,10 +117,14 @@ class _EditProductScreen extends State<EditProductScreen> {
           ),
         );
       }
+      // Pop the screen when the save button is pressed
+      // in creating the new product entity
+      Navigator.of(context).pop();
     }
     setState(() {
       _isLoading = false;
     });
+
   }
 
   @override

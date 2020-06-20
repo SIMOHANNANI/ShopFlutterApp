@@ -22,8 +22,8 @@ class Product with ChangeNotifier {
     this.isFavorite = false
   });
 
-  Future<void> toggleProductFavorite() async {
-    final url = 'https://shopapp-1621f.firebaseio.com/products/$id.json';
+  Future<void> toggleProductFavorite(String token) async {
+    final url = 'https://shopapp-1621f.firebaseio.com/products/$id.json?auth=$token';
     final favoriteStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();

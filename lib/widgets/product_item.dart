@@ -1,8 +1,10 @@
+import 'package:ShopApp/providers/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../providers/product.dart';
 import '../screens/product_detail_screen.dart';
 import '../providers/cart.dart';
+import '../providers/auth.dart';
 
 class ProductItem extends StatelessWidget {
   @override
@@ -11,6 +13,7 @@ class ProductItem extends StatelessWidget {
     final cart = Provider.of<Cart>(context, listen: false);
     // When we wanna just a subpart of the builder to be interested by the
     // changes we've to use the consumer widget;
+    final auth = Provider.of<Auth>(context, listen: false).token;
     return Consumer<Product>(
       builder: (ctx, product, child) => GridTile(
         child: GestureDetector(
@@ -34,7 +37,7 @@ class ProductItem extends StatelessWidget {
                     ? Icons.favorite
                     : Icons.favorite_border),
                 onPressed: () {
-                  product.toggleProductFavorite();
+                  product.toggleProductFavorite(auth);
                 },
                 color: Theme.of(context).accentColor,
               ),

@@ -4,7 +4,18 @@ import 'dart:convert';
 import 'product.dart';
 
 class ProductsProvider with ChangeNotifier {
-  List<Product> _products = [];
+  List<Product> _products = [
+     Product(
+       id: 'p1',
+       title: 'Red Shirt',
+       description: 'A red shirt - it is pretty red!',
+       price: 29.99,
+       imageUrl:
+           'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+     ),
+  ];
+  final String authToken;
+  ProductsProvider(this.authToken, this._products);
   List<Product> get products {
     //    if (!_showFavoritesOnly) {
     //      return [..._products]; // Return a copy of the product list
@@ -15,24 +26,28 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> dataBaseOperation() async {
     // Fetching the product present in the database:
-    const url = 'https://shopapp-1621f.firebaseio.com/products.json';
+    final  url = 'https://shopapp-1621f.firebaseio.com/products.json?auth=$authToken';
+    // final for runtime constant
+    // const from compile time constant
     try {
       final response = await http.get(url);
       final gatheredData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loaderProducts = [];
-      gatheredData.forEach((key, value) {
-        // loop through the map of products ,
-        // the key is the product id
-        // and actually the value is the product data .
-        loaderProducts.add(Product(
-          id: key,
-          title: value['title'],
-          description: value['description'],
-          price: value['price'],
-          imageUrl: value['imageUrl'],
-          isFavorite: value['isFavorite'],
-        ));
-      });
+      if (gatheredData != null) {
+        gatheredData.forEach((key, value) {
+          // loop through the map of products ,
+          // the key is the product id
+          // and actually the value is the product data .
+          loaderProducts.add(Product(
+            id: key,
+            title: value['title'],
+            description: value['description'],
+            price: value['price'],
+            imageUrl: value['imageUrl'],
+            isFavorite: value['isFavorite'],
+          ));
+        });
+      }
       _products = loaderProducts;
       notifyListeners();
     } catch (error) {
@@ -41,7 +56,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final url = 'https://shopapp-1621f.firebaseio.com/products.json';
+    final url = 'https://shopapp-1621f.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.post(
         url,
@@ -68,6 +83,7 @@ class ProductsProvider with ChangeNotifier {
     } catch (error) {
       throw error;
     }
+
   }
 
   Product findById(String id) {
@@ -82,7 +98,7 @@ class ProductsProvider with ChangeNotifier {
     final _productUpdateIndex =
     _products.indexWhere((element) => element.id == id);
     if (_productUpdateIndex >= 0) {
-      final url = 'https://shopapp-1621f.firebaseio.com/products/$id.json';
+      final url = 'https://shopapp-1621f.firebaseio.com/products/$id.json?auth=$authToken';
       try {
         await http.patch(url, body: jsonEncode({
           'title': newProduct.title,
@@ -108,7 +124,7 @@ class ProductsProvider with ChangeNotifier {
     final indexWillDeleteProduct = _products.indexWhere((element) => id == element.id);
     var willDeleteProduct = _products[indexWillDeleteProduct];
     _products.removeAt(indexWillDeleteProduct);
-    final url = 'https://shopapp-1621f.firebaseio.com/products/$id.json';
+    final url = 'https://shopapp-1621f.firebaseio.com/products/$id.json?auth=$authToken';
     await http.delete(url).then((_){
       willDeleteProduct = null;
     }).catchError((_){
