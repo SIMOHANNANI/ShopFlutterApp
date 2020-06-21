@@ -23,9 +23,13 @@ class ProductItem extends StatelessWidget {
               // forward the id of the product the the product detail screen ,That's allow us to obtain the
               // the other property of the product ...
             },
-            child: Image.network(
-              product.imageUrl,
-              fit: BoxFit.cover,
+            child: Hero(
+              tag: product.id,
+              child: FadeInImage(
+                placeholder: AssetImage('assets/img/placeholder.png'),
+                image: NetworkImage(product.imageUrl),
+                fit: BoxFit.cover,
+              ),
             )),
         footer: ClipRRect(
           borderRadius: BorderRadius.only(
@@ -37,7 +41,7 @@ class ProductItem extends StatelessWidget {
                     ? Icons.favorite
                     : Icons.favorite_border),
                 onPressed: () {
-                  product.toggleProductFavorite(auth.token,auth.userId);
+                  product.toggleProductFavorite(auth.token, auth.userId);
                 },
                 color: Theme.of(context).accentColor,
               ),
@@ -61,9 +65,12 @@ class ProductItem extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     duration: Duration(seconds: 1),
-                    action: SnackBarAction(label: 'Undo',onPressed: (){
-                      cart.removeSingleCart(product.id);
-                    },),
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      onPressed: () {
+                        cart.removeSingleCart(product.id);
+                      },
+                    ),
                   ));
                 },
                 color: Theme.of(context).accentColor,

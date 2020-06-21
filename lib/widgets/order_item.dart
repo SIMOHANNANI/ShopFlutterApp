@@ -17,41 +17,52 @@ class _OrderItemState extends State<OrderItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.symmetric(
-        vertical: 15.0,
-        horizontal: 10.0,
-      ),
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text('\$${widget.order.amount}'),
-            subtitle: Text(
-                DateFormat('dd/MM/yyyy | hh:mm').format(widget.order.dateTime)),
-            trailing: IconButton(
-              icon: Icon(!_expanded ? Icons.expand_more : Icons.expand_less),
-              onPressed: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 100),
+      height:
+          _expanded ? min(widget.order.products.length * 20.0 + 150, 300.0) : 120,
+      child: Card(
+        margin: EdgeInsets.symmetric(
+          vertical: 15.0,
+          horizontal: 10.0,
+        ),
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              title: Text('\$${widget.order.amount}'),
+              subtitle: Text(DateFormat('dd/MM/yyyy | hh:mm')
+                  .format(widget.order.dateTime)),
+              trailing: IconButton(
+                icon: Icon(!_expanded ? Icons.expand_more : Icons.expand_less),
+                onPressed: () {
+                  setState(() {
+                    _expanded = !_expanded;
+                  });
+                },
+              ),
             ),
-          ),
-          if(_expanded) Container(
-            height: min(widget.order.products.length * 20.0 + 30, 180.0),
-            child:ListView(
-              padding: EdgeInsets.symmetric(vertical: 10.0,horizontal: 20.0),
-              children: widget.order.products.map((e) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(e.title,style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold),),
-                  Text('${e.quantity}x \$${e.price}'),
-
-                ],
-              )).toList(),
+            AnimatedContainer(
+              duration: Duration(milliseconds: 100),
+              height: _expanded ? min(widget.order.products.length * 20.0 + 110, 90.0) : 0,
+              child: ListView(
+                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                children: widget.order.products
+                    .map((e) => Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              e.title,
+                              style: TextStyle(
+                                  fontSize: 20.0, fontWeight: FontWeight.bold),
+                            ),
+                            Text('${e.quantity}x \$${e.price}'),
+                          ],
+                        ))
+                    .toList(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
